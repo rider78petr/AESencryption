@@ -3,6 +3,8 @@
 #include <vector>
 #include <iomanip>
 #include <cstring>
+#include <fstream>
+#include <stdexcept>
 
 #include "../../include/AEScipher.hpp"
 #include "../../include/keyExpansion.hpp"
@@ -101,6 +103,82 @@ bool decryptWithPassword(const std::vector<byte>& ciphertext,
     return true;
 }
 
+
+void saveToFile(const std::string& filename,
+                const std::vector<byte>& salt,
+                const std::vector<byte>& ciphertext) {
+    std::ofstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Cannot create file: " + filename);
+    }
+    
+    uint32_t saltLen = static_cast<uint32_t>(salt.size());
+    file.write(reinterpret_cast<const char*>(&saltLen), 4);
+    
+    file.write(reinterpret_cast<const char*>(salt.data()), saltLen);
+    
+    uint32_t cipherLen = static_cast<uint32_t>(ciphertext.size());
+    file.write(reinterpret_cast<const char*>(&cipherLen), 4);
+    
+    file.write(reinterpret_cast<const char*>(ciphertext.data()), cipherLen);
+    
+    std::cout << "Saved to: " << filename << std::endl;
+}
+
+void loadFromFile(const std::string& filename,
+                  std::vector<byte>& salt,
+                  std::vector<byte>& ciphertext) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Cannot open file: " + filename);
+    }
+    
+    uint32_t saltLen;
+    file.read(reinterpret_cast<char*>(&saltLen), 4);
+    if (!file) throw std::runtime_error("Failed to read salt length");
+    
+    salt.resize(saltLen);
+    file.read(reinterpret_cast<char*>(salt.data()), saltLen);
+    if (!file) throw std::runtime_error("Failed to read salt");
+    
+    uint32_t cipherLen;
+    file.read(reinterpret_cast<char*>(&cipherLen), 4);
+    if (!file) throw std::runtime_error("Failed to read ciphertext length");
+    
+    ciphertext.resize(cipherLen);
+    file.read(reinterpret_cast<char*>(ciphertext.data()), cipherLen);
+    if (!file) throw std::runtime_error("Failed to read ciphertext");
+}
+
+void encryptToFile(const std::string& plaintext,
+                   const std::string& password,
+                   const std::string& filename) {
+    std::vector<byte> ciphertext;
+    std::vector<byte> salt;
+    
+    encryptWithPassword(plaintext, password, ciphertext, salt);
+    saveToFile(filename, salt, ciphertext);
+    
+    std::cout << "Encryption successful!" << std::endl;
+    std::cout << "File saved to: " << filename << std::endl;
+}
+
+std::string decryptFromFile(const std::string& password,
+                            const std::string& filename) {
+    std::vector<byte> salt;
+    std::vector<byte> ciphertext;
+    
+    loadFromFile(filename, salt, ciphertext);
+    
+    std::string plaintext;
+    if (!decryptWithPassword(ciphertext, password, salt, plaintext)) {
+        throw std::runtime_error("Decryption failed! Wrong password or corrupted file.");
+    }
+    
+    return plaintext;
+}
+
+
 bool runFIPSTest() {
     std::cout << "\n=== FIPS 197 Test ===\n" << std::endl;
     
@@ -180,74 +258,22 @@ void demoPasswordEncryption() {
     }
 }
 
-void interactiveDecrypt() {
-    std::cout << "\n=== Interactive Decryption ===\n" << std::endl;
-    
-    std::string password;
-    std::string saltHex;
-    std::string cipherHex;
-    
-    std::cout << "Enter password: ";
-    std::getline(std::cin, password);
-    
-    std::cout << "Enter salt (hex): ";
-    std::getline(std::cin, saltHex);
-    
-    std::cout << "Enter ciphertext (hex): ";
-    std::getline(std::cin, cipherHex);
-    
-    std::vector<byte> salt;
-    for (size_t i = 0; i + 1 < saltHex.length(); i += 2) {
-        salt.push_back(static_cast<byte>(
-            std::stoi(saltHex.substr(i, 2), nullptr, 16)));
-    }
-    
-    std::vector<byte> ciphertext;
-    for (size_t i = 0; i + 1 < cipherHex.length(); i += 2) {
-        ciphertext.push_back(static_cast<byte>(
-            std::stoi(cipherHex.substr(i, 2), nullptr, 16)));
-    }
-    
-    std::string plaintext;
-    if (decryptWithPassword(ciphertext, password, salt, plaintext)) {
-        std::cout << "\n--- Decryption Result ---" << std::endl;
-        std::cout << "Decrypted text: " << plaintext << std::endl;
-    } else {
-        std::cout << "\nDecryption failed! Wrong password or corrupted data." << std::endl;
-    }
-}
-
 void printHelp() {
-    std::cout << "\n============================================================" << std::endl;
-    std::cout << "     AES-128 Console Encryption Tool" << std::endl;
-    std::cout << "============================================================\n" << std::endl;
-    std::cout << "Available commands:\n" << std::endl;
-    std::cout << "  help                      - Show this help" << std::endl;
-    std::cout << "  test                      - Run FIPS 197 compliance test" << std::endl;
-    std::cout << "  demo                      - Demonstrate password-based encryption" << std::endl;
-    std::cout << "  encrypt <text> <password> - Quick encrypt (one-liner)" << std::endl;
-    std::cout << "  decrypt                   - Interactive decryption" << std::endl;
+    std::cout << "\n================================================================" << std::endl;
+    std::cout << "          AES-128 Console Encryption Tool" << std::endl;
+    std::cout << "================================================================" << std::endl;
+    std::cout << "\nAvailable commands:\n" << std::endl;
+    std::cout << "  help                                   - Show this help" << std::endl;
+    std::cout << "  test                                   - Run FIPS 197 compliance test" << std::endl;
+    std::cout << "  demo                                   - Demonstrate password-based encryption" << std::endl;
+    std::cout << "  encrypt-file <text> <password> [filename] - Encrypt text and save to file" << std::endl;
+    std::cout << "  decrypt-file <password> [filename]        - Decrypt file (only password needed)" << std::endl;
     std::cout << "\nExamples:\n" << std::endl;
     std::cout << "  ./aes_cli test" << std::endl;
     std::cout << "  ./aes_cli demo" << std::endl;
-    std::cout << "  ./aes_cli encrypt \"Hello World\" \"myPassword123\"" << std::endl;
-    std::cout << "  ./aes_cli decrypt" << std::endl;
-    std::cout << "============================================================\n" << std::endl;
-}
-
-void quickEncrypt(const std::string& plaintext, const std::string& password) {
-    std::vector<byte> ciphertext;
-    std::vector<byte> salt;
-    
-    encryptWithPassword(plaintext, password, ciphertext, salt);
-    
-    std::cout << "\n--- Encryption Result ---" << std::endl;
-    printBytes(salt, "Salt");
-    printBytes(ciphertext, "Ciphertext");
-    std::cout << "\nTo decrypt, use:\n  ./aes_cli decrypt" << std::endl;
-    std::cout << "And enter:\n  Password: " << password << std::endl;
-    std::cout << "  Salt: "; printBytes(salt);
-    std::cout << "  Ciphertext: "; printBytes(ciphertext);
+    std::cout << "  ./aes_cli encrypt-file \"Secret message\" \"myPass\" secret.bin" << std::endl;
+    std::cout << "  ./aes_cli decrypt-file \"myPass\" secret.bin" << std::endl;
+    std::cout << "================================================================" << std::endl;
 }
 
 int main(int argc, char* argv[]) {
@@ -268,17 +294,31 @@ int main(int argc, char* argv[]) {
         std::cin.ignore();
         demoPasswordEncryption();
     }
-    else if (command == "encrypt" && argc >= 4) {
+    else if (command == "encrypt-file" && argc >= 4) {
         std::string plaintext = argv[2];
         std::string password = argv[3];
-        quickEncrypt(plaintext, password);
+        std::string filename = (argc >= 5) ? argv[4] : "encrypted.bin";
+        try {
+            encryptToFile(plaintext, password, filename);
+        } catch (const std::exception& e) {
+            std::cout << "Error: " << e.what() << std::endl;
+        }
     }
-    else if (command == "encrypt" && argc < 4) {
-        std::cout << "Usage: ./aes_cli encrypt <text> <password>" << std::endl;
+    else if (command == "encrypt-file" && argc < 4) {
+        std::cout << "Usage: ./aes_cli encrypt-file <text> <password> [filename]" << std::endl;
     }
-    else if (command == "decrypt") {
-        std::cin.ignore();
-        interactiveDecrypt();
+    else if (command == "decrypt-file" && argc >= 3) {
+        std::string password = argv[2];
+        std::string filename = (argc >= 4) ? argv[3] : "encrypted.bin";
+        try {
+            std::string decrypted = decryptFromFile(password, filename);
+            std::cout << "Decrypted text: " << decrypted << std::endl;
+        } catch (const std::exception& e) {
+            std::cout << "Error: " << e.what() << std::endl;
+        }
+    }
+    else if (command == "decrypt-file" && argc < 3) {
+        std::cout << "Usage: ./aes_cli decrypt-file <password> [filename]" << std::endl;
     }
     else {
         std::cout << "Unknown command: " << command << std::endl;
