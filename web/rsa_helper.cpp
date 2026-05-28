@@ -8,16 +8,8 @@ KeyPairResult generateKeys() {
     result.success = false;
     
     try {
-        // Генерируем RSA-2048 ключевую пару
-        // Это может занять несколько секунд (генерация больших простых чисел)
-        auto start = std::chrono::high_resolution_clock::now();
-        
         RSA::KeyPair keyPair = RSA::generateKeyPair(2048);
         
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        
-        // Конвертируем ключи в hex для хранения и передачи
         result.publicKeyN = keyPair.publicKey.n.toHex();
         result.publicKeyE = keyPair.publicKey.e.toHex();
         result.privateKeyN = keyPair.privateKey.n.toHex();
@@ -43,10 +35,7 @@ RSAResult encryptWithPublicKey(const std::string& plaintext,
             return result;
         }
         
-        // Восстанавливаем публичный ключ из hex
         RSA::PublicKey pubKey = RSA::PublicKey::fromHex(publicKeyN_hex, publicKeyE_hex);
-        
-        // Шифруем текст
         std::string ciphertext = RSA::encryptText(plaintext, pubKey);
         
         result.result = ciphertext;
@@ -70,10 +59,7 @@ RSAResult decryptWithPrivateKey(const std::string& ciphertext,
             return result;
         }
         
-        // Восстанавливаем приватный ключ из hex
         RSA::PrivateKey privKey = RSA::PrivateKey::fromHex(privateKeyN_hex, privateKeyD_hex);
-        
-        // Расшифровываем текст
         std::string plaintext = RSA::decryptText(ciphertext, privKey);
         
         result.result = plaintext;
@@ -85,4 +71,4 @@ RSAResult decryptWithPrivateKey(const std::string& ciphertext,
     return result;
 }
 
-} // namespace WebRSA
+}

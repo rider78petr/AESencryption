@@ -4,10 +4,6 @@
 
 namespace RSA {
 
-// ════════════════════════════════════════════════════════════════
-//  Конструкторы / деструктор
-// ════════════════════════════════════════════════════════════════
-
 BigInt::BigInt() {
     mpz_init(value);
 }
@@ -31,7 +27,6 @@ BigInt::BigInt(const BigInt& other) {
 }
 
 BigInt::BigInt(BigInt&& other) noexcept {
-    // Перемещаем: забираем себе value, а у other инициализируем пустое
     mpz_init(value);
     mpz_swap(value, other.value);
 }
@@ -57,14 +52,12 @@ BigInt::~BigInt() {
 BigInt BigInt::fromBytes(const std::vector<uint8_t>& bytes) {
     BigInt result;
     if (bytes.empty()) return result;
-    // big-endian, 1 byte per word, most significant word first
     mpz_import(result.value, bytes.size(), 1, 1, 1, 0, bytes.data());
     return result;
 }
 
 BigInt BigInt::fromHex(const std::string& hex) {
     BigInt result;
-    // Удаляем пробелы и переносы строк
     std::string clean;
     for (char c : hex) {
         if (c != ' ' && c != '\n' && c != '\r' && c != '\t') {
@@ -76,10 +69,6 @@ BigInt BigInt::fromHex(const std::string& hex) {
     }
     return result;
 }
-
-// ════════════════════════════════════════════════════════════════
-//  Преобразования
-// ════════════════════════════════════════════════════════════════
 
 std::string BigInt::toDecimal() const {
     char* str = mpz_get_str(nullptr, 10, value);
@@ -105,10 +94,6 @@ std::vector<uint8_t> BigInt::toBytes() const {
     return bytes;
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Сравнения
-// ════════════════════════════════════════════════════════════════
-
 bool BigInt::operator==(const BigInt& o) const { return mpz_cmp(value, o.value) == 0; }
 bool BigInt::operator!=(const BigInt& o) const { return mpz_cmp(value, o.value) != 0; }
 bool BigInt::operator<(const BigInt& o)  const { return mpz_cmp(value, o.value) < 0; }
@@ -119,10 +104,6 @@ bool BigInt::operator>=(const BigInt& o) const { return mpz_cmp(value, o.value) 
 bool BigInt::isZero() const { return mpz_sgn(value) == 0; }
 bool BigInt::isOne()  const { return mpz_cmp_ui(value, 1) == 0; }
 bool BigInt::isEven() const { return mpz_even_p(value) != 0; }
-
-// ════════════════════════════════════════════════════════════════
-//  Арифметика
-// ════════════════════════════════════════════════════════════════
 
 BigInt BigInt::operator+(const BigInt& o) const {
     BigInt r;
@@ -159,10 +140,6 @@ BigInt BigInt::operator%(const BigInt& o) const {
     return r;
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Битовые операции
-// ════════════════════════════════════════════════════════════════
-
 BigInt BigInt::operator<<(int shift) const {
     BigInt r;
     mpz_mul_2exp(r.value, value, shift);
@@ -184,4 +161,4 @@ bool BigInt::getBit(int index) const {
     return mpz_tstbit(value, index) != 0;
 }
 
-} // namespace RSA
+}

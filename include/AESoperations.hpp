@@ -1,8 +1,7 @@
 #pragma once
 
-
 #include "constants.hpp"
-#include "gf256.hpp" 
+#include "gf256.hpp"
 
 namespace AES {
 
@@ -17,22 +16,6 @@ namespace AES {
             state[i] = invSBox[state[i]];
         }
     }
-
-
-    /*
-    [0]   [4]   [8]   [12]
-    [1]   [5]   [9]   [13]
-    [2]   [6]   [10]  [14]
-    [3]   [7]   [11]  [15]
-
-    -->
-
-    [0]   [4]   [8]   [12]   
-    [5]   [9]   [13]  [1]  
-    [10]  [14]  [2]   [6]    
-    [15]  [3]   [7]   [11]   
-    */
-
 
     inline void shiftRows(byte* state) {
         byte tmp[16];
@@ -62,7 +45,6 @@ namespace AES {
         }
     }
 
-
     inline void invShiftRows(byte* state) {
         byte tmp[16];
         
@@ -91,15 +73,6 @@ namespace AES {
         }
     }
 
-
-
-    /*
-    mixColumns
-    b0' = (02 × b0) ⊕ (03 × b1) ⊕ (01 × b2) ⊕ (01 × b3)
-    b1' = (01 × b0) ⊕ (02 × b1) ⊕ (03 × b2) ⊕ (01 × b3)
-    b2' = (01 × b0) ⊕ (01 × b1) ⊕ (02 × b2) ⊕ (03 × b3)
-    b3' = (03 × b0) ⊕ (01 × b1) ⊕ (01 × b2) ⊕ (02 × b3)
-    */
     inline void mixColumns(byte* state) {
         byte tmp[16];
         
@@ -111,9 +84,9 @@ namespace AES {
             byte b2 = state[base + 2];
             byte b3 = state[base + 3];
             
-            tmp[base + 0] = gf_multiply(0x02, b0) ^ gf_multiply(0x03, b1) ^ b2 ^ b3;           
-            tmp[base + 1] = b0 ^ gf_multiply(0x02, b1) ^ gf_multiply(0x03, b2) ^ b3;            
-            tmp[base + 2] = b0 ^ b1 ^ gf_multiply(0x02, b2) ^ gf_multiply(0x03, b3);           
+            tmp[base + 0] = gf_multiply(0x02, b0) ^ gf_multiply(0x03, b1) ^ b2 ^ b3;
+            tmp[base + 1] = b0 ^ gf_multiply(0x02, b1) ^ gf_multiply(0x03, b2) ^ b3;
+            tmp[base + 2] = b0 ^ b1 ^ gf_multiply(0x02, b2) ^ gf_multiply(0x03, b3);
             tmp[base + 3] = gf_multiply(0x03, b0) ^ b1 ^ b2 ^ gf_multiply(0x02, b3);
         }
         
@@ -122,14 +95,6 @@ namespace AES {
         }
     }
 
-
-    /*
-    invMixColumns
-    b0' = (0E × b0) ⊕ (0B × b1) ⊕ (0D × b2) ⊕ (09 × b3)
-    b1' = (09 × b0) ⊕ (0E × b1) ⊕ (0B × b2) ⊕ (0D × b3)
-    b2' = (0D × b0) ⊕ (09 × b1) ⊕ (0E × b2) ⊕ (0B × b3)
-    b3' = (0B × b0) ⊕ (0D × b1) ⊕ (09 × b2) ⊕ (0E × b3)
-    */
     inline void invMixColumns(byte* state) {
         byte tmp[16];
         
@@ -151,7 +116,6 @@ namespace AES {
             state[i] = tmp[i];
         }
     }
-
 
     inline void addRoundKey(byte* state, const byte* roundKey) {
         for (int i = 0; i < 16; i++) {

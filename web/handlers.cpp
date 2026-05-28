@@ -9,16 +9,14 @@
 
 namespace WebHandlers {
 
-// Получаем язык из cookie запроса
 static Lang::Language getLang(const httplib::Request& req) {
     auto it = req.headers.find("Cookie");
     if (it != req.headers.end()) {
         return Lang::fromCookie(it->second);
     }
-    return Lang::Language::RU; // по умолчанию русский
+    return Lang::Language::RU;
 }
 
-// Устанавливаем cookie с языком
 static void setLangCookie(httplib::Response& res, Lang::Language lang) {
     std::string cookie = "lang=" + Lang::toCookieValue(lang) + "; Path=/; Max-Age=31536000";
     res.set_header("Set-Cookie", cookie);
@@ -28,7 +26,6 @@ void handleLangSwitch(const httplib::Request& req, httplib::Response& res) {
     std::string set = req.get_param_value("set");
     Lang::Language lang = (set == "en") ? Lang::Language::EN : Lang::Language::RU;
     setLangCookie(res, lang);
-    // Редиректим на главную
     res.set_redirect("/");
 }
 
@@ -222,7 +219,6 @@ void handleRSADecryptSubmit(const httplib::Request& req, httplib::Response& res)
     res.set_content(html, "text/html");
 }
 
-
 void handleDocs(const httplib::Request& req, httplib::Response& res) {
     auto lang = getLang(req);
     std::string html = WebTemplates::renderHeader("docs", lang);
@@ -231,4 +227,4 @@ void handleDocs(const httplib::Request& req, httplib::Response& res) {
     res.set_content(html, "text/html");
 }
 
-} // namespace WebHandlers
+}

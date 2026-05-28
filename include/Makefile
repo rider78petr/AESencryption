@@ -9,11 +9,11 @@ EMBEDDER = embed_templates.exe
 
 all: generate dirs $(TARGET)
 
-
+# Шаг 1: компилируем утилиту встраивания шаблонов
 $(EMBEDDER): embed_templates.cpp
 	$(CXX) -std=c++20 embed_templates.cpp -o $(EMBEDDER)
 
-
+# Шаг 2: запускаем утилиту — генерирует web/templates_generated.hpp
 generate: $(EMBEDDER)
 	./$(EMBEDDER)
 

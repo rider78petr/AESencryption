@@ -1,4 +1,3 @@
-//#define CPPHTTPLIB_NO_EXCEPTIONS
 #include "handlers.hpp"
 #include "config.hpp"
 #include <iostream>
@@ -6,10 +5,8 @@
 int main() {
     httplib::Server app;
 
-    // Переключение языка
     app.Get("/lang", WebHandlers::handleLangSwitch);
 
-    // AES routes
     app.Get("/", WebHandlers::handleHome);
     app.Get("/encrypt", WebHandlers::handleEncryptForm);
     app.Post("/encrypt", WebHandlers::handleEncryptSubmit);
@@ -20,7 +17,6 @@ int main() {
     app.Get("/about", WebHandlers::handleAbout);
     app.Get("/docs", WebHandlers::handleDocs);
 
-    // RSA routes
     app.Get("/rsa/generate", WebHandlers::handleRSAGenerate);
     app.Post("/rsa/generate", WebHandlers::handleRSAGenerateSubmit);
     app.Get("/rsa/encrypt", WebHandlers::handleRSAEncrypt);
@@ -28,7 +24,6 @@ int main() {
     app.Get("/rsa/decrypt", WebHandlers::handleRSADecrypt);
     app.Post("/rsa/decrypt", WebHandlers::handleRSADecryptSubmit);
 
-    // Static files
     app.Get("/static/(.*)", [](const httplib::Request& req, httplib::Response& res) {
         std::string filename = req.matches[1];
         WebHandlers::handleStaticFile(filename, res);

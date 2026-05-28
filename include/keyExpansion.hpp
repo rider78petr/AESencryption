@@ -1,11 +1,9 @@
 #pragma once
 
-
 #include <cstring>
 #include <cstdint>
 
 #include "constants.hpp"
-
 
 namespace AES {
 

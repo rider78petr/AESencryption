@@ -25,4 +25,3 @@ unsigned char gf_multiply(unsigned char a, unsigned char b) {
 }
 
 }
-

@@ -10,10 +10,6 @@
 
 namespace RSA {
 
-// ════════════════════════════════════════════════════════════════
-//  Базовые операции
-// ════════════════════════════════════════════════════════════════
-
 BigInt encryptNumber(const BigInt& message, const PublicKey& pubKey) {
     return modPow(message, pubKey.e, pubKey.n);
 }
@@ -22,10 +18,6 @@ BigInt decryptNumber(const BigInt& ciphertext, const PrivateKey& privKey) {
     return modPow(ciphertext, privKey.d, privKey.n);
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Вспомогательные функции
-// ════════════════════════════════════════════════════════════════
-
 static std::mt19937& getRng() {
     static std::mt19937 rng(
         std::chrono::high_resolution_clock::now().time_since_epoch().count()
@@ -33,47 +25,32 @@ static std::mt19937& getRng() {
     return rng;
 }
 
-// Генерируем случайный байт
 static uint8_t randomByte() {
     static std::uniform_int_distribution<int> dist(0, 255);
     return static_cast<uint8_t>(dist(getRng()));
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Простой padding для одного блока
-//
-//  Формат блока (keyBytes байт):
-//  [0x00][random_seed x 31][0x00][plaintext...]
-//
-//  Максимальный размер plaintext = keyBytes - 33
-// ════════════════════════════════════════════════════════════════
-
 static int maxBlockSize(int keyBytes) {
-    return keyBytes - 33; // 1 нулевой байт + 31 seed + 1 разделитель
+    return keyBytes - 33;
 }
 
 static std::vector<uint8_t> padBlock(const std::vector<uint8_t>& block, int keyBytes) {
-    // Проверяем что блок помещается
     if ((int)block.size() > maxBlockSize(keyBytes)) {
         throw std::runtime_error("Block too large for RSA key size");
     }
     
     std::vector<uint8_t> padded(keyBytes, 0);
     
-    // Байт 0: всегда 0x00 (чтобы число было меньше n)
     padded[0] = 0x00;
     
-    // Байты 1..31: случайный seed (31 байт)
     for (int i = 1; i <= 31; ++i) {
         uint8_t b = 0;
-        while (b == 0) b = randomByte(); // seed не должен содержать нули
+        while (b == 0) b = randomByte();
         padded[i] = b;
     }
     
-    // Байт 32: разделитель 0x00
     padded[32] = 0x00;
     
-    // Байты 33..33+len: сам plaintext
     std::memcpy(padded.data() + 33, block.data(), block.size());
     
     return padded;
@@ -84,8 +61,6 @@ static std::vector<uint8_t> unpadBlock(const std::vector<uint8_t>& padded, int k
         throw std::runtime_error("Invalid padded block size");
     }
     
-    // Ищем разделитель 0x00 начиная с позиции 1
-    // (пропускаем первый байт который тоже 0x00)
     size_t sep = 0;
     for (size_t i = 1; i < padded.size(); ++i) {
         if (padded[i] == 0x00) {
@@ -98,13 +73,8 @@ static std::vector<uint8_t> unpadBlock(const std::vector<uint8_t>& padded, int k
         throw std::runtime_error("Invalid padding: separator not found");
     }
     
-    // Plaintext начинается после разделителя
     return std::vector<uint8_t>(padded.begin() + sep + 1, padded.end());
 }
-
-// ════════════════════════════════════════════════════════════════
-//  Шифрование / расшифрование текста с разбивкой на блоки
-// ════════════════════════════════════════════════════════════════
 
 std::string encryptText(const std::string& plaintext, const PublicKey& pubKey) {
     int keyBytes = (pubKey.n.bitLength() + 7) / 8;
@@ -114,23 +84,18 @@ std::string encryptText(const std::string& plaintext, const PublicKey& pubKey) {
         throw std::runtime_error("RSA key too small");
     }
     
-    // Преобразуем текст в байты
     std::vector<uint8_t> data(plaintext.begin(), plaintext.end());
     
-    // Разбиваем на блоки и шифруем каждый
     std::string result;
     size_t offset = 0;
     
     while (offset < data.size()) {
-        // Берём очередной блок
         size_t len = std::min((size_t)blockSize, data.size() - offset);
         std::vector<uint8_t> block(data.begin() + offset, data.begin() + offset + len);
         offset += len;
         
-        // Добавляем padding
         std::vector<uint8_t> padded = padBlock(block, keyBytes);
         
-        // Преобразуем в BigInt и шифруем
         BigInt m = BigInt::fromBytes(padded);
         
         if (m >= pubKey.n) {
@@ -139,14 +104,11 @@ std::string encryptText(const std::string& plaintext, const PublicKey& pubKey) {
         
         BigInt c = encryptNumber(m, pubKey);
         
-        // Конвертируем в байты фиксированного размера keyBytes
         std::vector<uint8_t> cBytes = c.toBytes();
-        // Дополняем нулями слева до keyBytes
         while ((int)cBytes.size() < keyBytes) {
             cBytes.insert(cBytes.begin(), 0x00);
         }
         
-        // Кодируем в base64 и добавляем разделитель ":"
         if (!result.empty()) result += ":";
         result += WebUtils::base64_encode(cBytes);
     }
@@ -157,7 +119,6 @@ std::string encryptText(const std::string& plaintext, const PublicKey& pubKey) {
 std::string decryptText(const std::string& ciphertext, const PrivateKey& privKey) {
     int keyBytes = (privKey.n.bitLength() + 7) / 8;
     
-    // Разбиваем по разделителю ":"
     std::vector<std::string> blocks;
     std::stringstream ss(ciphertext);
     std::string token;
@@ -172,20 +133,16 @@ std::string decryptText(const std::string& ciphertext, const PrivateKey& privKey
     std::string plaintext;
     
     for (const auto& b64block : blocks) {
-        // Декодируем base64
         std::vector<uint8_t> cBytes = WebUtils::base64_decode(b64block);
         
-        // Преобразуем в BigInt и расшифровываем
         BigInt c = BigInt::fromBytes(cBytes);
         BigInt m = decryptNumber(c, privKey);
         
-        // Конвертируем в байты фиксированного размера
         std::vector<uint8_t> padded = m.toBytes();
         while ((int)padded.size() < keyBytes) {
             padded.insert(padded.begin(), 0x00);
         }
         
-        // Удаляем padding
         std::vector<uint8_t> block = unpadBlock(padded, keyBytes);
         
         plaintext += std::string(block.begin(), block.end());
@@ -194,4 +151,4 @@ std::string decryptText(const std::string& ciphertext, const PrivateKey& privKey
     return plaintext;
 }
 
-} // namespace RSA
+}

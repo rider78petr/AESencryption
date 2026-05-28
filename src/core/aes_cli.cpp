@@ -103,7 +103,6 @@ bool decryptWithPassword(const std::vector<byte>& ciphertext,
     return true;
 }
 
-
 void saveToFile(const std::string& filename,
                 const std::vector<byte>& salt,
                 const std::vector<byte>& ciphertext) {
@@ -114,12 +113,10 @@ void saveToFile(const std::string& filename,
     
     uint32_t saltLen = static_cast<uint32_t>(salt.size());
     file.write(reinterpret_cast<const char*>(&saltLen), 4);
-    
     file.write(reinterpret_cast<const char*>(salt.data()), saltLen);
     
     uint32_t cipherLen = static_cast<uint32_t>(ciphertext.size());
     file.write(reinterpret_cast<const char*>(&cipherLen), 4);
-    
     file.write(reinterpret_cast<const char*>(ciphertext.data()), cipherLen);
     
     std::cout << "Saved to: " << filename << std::endl;
@@ -178,7 +175,6 @@ std::string decryptFromFile(const std::string& password,
     return plaintext;
 }
 
-
 bool runFIPSTest() {
     std::cout << "\n=== FIPS 197 Test ===\n" << std::endl;
     
@@ -202,7 +198,6 @@ bool runFIPSTest() {
     byte roundKeys[11][16];
     
     keyExpansion(key, roundKeys);
-    
     encryptBlock(plaintext, ciphertext, roundKeys);
     
     bool encryptOk = compareBytes(ciphertext, expectedCiphertext, 16);

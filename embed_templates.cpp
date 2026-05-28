@@ -1,11 +1,3 @@
-/**
- * Утилита для встраивания HTML шаблонов в C++ заголовочный файл.
- * Читает все .html файлы из web/templates/ и генерирует web/templates_generated.hpp
- * 
- * Использование: embed_templates.exe
- * Запускается автоматически через Makefile перед компиляцией основного проекта.
- */
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -16,15 +8,10 @@
 
 namespace fs = std::filesystem;
 
-// Преобразуем имя файла в имя C++ константы
-// home.html -> HOME
-// rsa_generate.html -> RSA_GENERATE
 std::string toConstName(const std::string& filename) {
     std::string name = filename;
-    // убираем .html
     size_t dot = name.rfind('.');
     if (dot != std::string::npos) name = name.substr(0, dot);
-    // переводим в верхний регистр
     std::transform(name.begin(), name.end(), name.begin(), ::toupper);
     return name;
 }
@@ -33,7 +20,6 @@ int main() {
     const std::string TEMPLATES_DIR = "web/templates";
     const std::string OUTPUT_FILE   = "web/templates_generated.hpp";
 
-    // Собираем список HTML файлов
     std::vector<fs::path> htmlFiles;
     for (const auto& entry : fs::directory_iterator(TEMPLATES_DIR)) {
         if (entry.path().extension() == ".html") {
@@ -72,8 +58,6 @@ int main() {
 
         std::string constName = toConstName(path.filename().string());
 
-        // Используем raw string literal R"HTMLEND(...)HTMLEND"
-        // чтобы не нужно было ничего экранировать в HTML
         out << "inline const std::string " << constName << " = R\"HTMLEND(\n";
         out << content;
         out << ")HTMLEND\";\n\n";

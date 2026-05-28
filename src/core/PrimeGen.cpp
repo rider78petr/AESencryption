@@ -6,7 +6,6 @@
 
 namespace RSA {
 
-// Маленькие простые числа для быстрой фильтрации.
 static const uint32_t SMALL_PRIMES[] = {
     3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67,
     71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139,
@@ -32,12 +31,7 @@ static bool divisibleBySmallPrime(const BigInt& n) {
     return false;
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Генерация случайных битов через GMP
-// ════════════════════════════════════════════════════════════════
-
 BigInt generateRandomBits(int bitLength) {
-    // Используем GMP-генератор случайных чисел для скорости.
     static gmp_randstate_t rng_state;
     static bool initialized = false;
     
@@ -50,25 +44,17 @@ BigInt generateRandomBits(int bitLength) {
     }
     
     BigInt result;
-    // Генерируем случайное число длиной ровно bitLength бит
     mpz_urandomb(result.value, rng_state, bitLength);
-    
-    // Гарантируем что старший бит = 1 (чтобы число было ровно bitLength бит)
     mpz_setbit(result.value, bitLength - 1);
     
     return result;
 }
-
-// ════════════════════════════════════════════════════════════════
-//  Тест Миллера-Рабина (наша реализация)
-// ════════════════════════════════════════════════════════════════
 
 bool millerRabin(const BigInt& n, int rounds) {
     if (n < BigInt(2)) return false;
     if (n == BigInt(2) || n == BigInt(3)) return true;
     if (n.isEven()) return false;
     
-    // n - 1 = 2^r * d
     BigInt n_minus_1 = n - BigInt(1);
     BigInt d = n_minus_1;
     int r = 0;
@@ -102,20 +88,14 @@ bool millerRabin(const BigInt& n, int rounds) {
     return true;
 }
 
-// ════════════════════════════════════════════════════════════════
-//  Генерация простого числа
-// ════════════════════════════════════════════════════════════════
-
 BigInt generateRandomPrime(int bitLength) {
     while (true) {
         BigInt candidate = generateRandomBits(bitLength);
         
-        // Делаем нечётным
         if (candidate.isEven()) {
             candidate = candidate + BigInt(1);
         }
         
-        // Ищем простое
         for (int attempts = 0; attempts < 10000; ++attempts) {
             if (!divisibleBySmallPrime(candidate)) {
                 if (millerRabin(candidate, 20)) {
@@ -127,4 +107,4 @@ BigInt generateRandomPrime(int bitLength) {
     }
 }
 
-} // namespace RSA
+}

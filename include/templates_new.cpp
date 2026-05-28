@@ -3,6 +3,7 @@
 #include "lang.hpp"
 #include <algorithm>
 
+// CSS встроен в код
 static const char* EMBEDDED_CSS = R"CSS(
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background-color: #111; color: #ddd; font-family: monospace; padding: 20px; }
@@ -37,6 +38,7 @@ a { color: #0f0; }
 
 namespace WebTemplates {
 
+// Заменяем плейсхолдер {{KEY}} на value в строке tmpl
 static std::string replace(std::string tmpl, const std::string& key, const std::string& value) {
     std::string placeholder = "{{" + key + "}}";
     size_t pos = 0;
@@ -47,6 +49,7 @@ static std::string replace(std::string tmpl, const std::string& key, const std::
     return tmpl;
 }
 
+// Блок результата (успех или ошибка)
 static std::string resultBlock(const std::string& title, const std::string& content, bool isError) {
     if (content.empty()) return "";
     std::string cls = isError ? "card result error" : "card result";
@@ -119,13 +122,13 @@ std::string renderEncryptPage(Lang::Language lang, const std::string& output, co
         ? resultBlock(s.error_title, error, true)
         : resultBlock(s.aes_encrypted_title, output, false);
     std::string t = Templates::ENCRYPT;
-    t = replace(t, "TITLE",                s.aes_encrypt_title);
-    t = replace(t, "LABEL_PASSWORD",       s.aes_encrypt_label_password);
-    t = replace(t, "PLACEHOLDER_PASSWORD", s.aes_encrypt_placeholder_password);
-    t = replace(t, "LABEL_PLAINTEXT",      s.aes_encrypt_label_plaintext);
+    t = replace(t, "TITLE",               s.aes_encrypt_title);
+    t = replace(t, "LABEL_PASSWORD",      s.aes_encrypt_label_password);
+    t = replace(t, "PLACEHOLDER_PASSWORD",s.aes_encrypt_placeholder_password);
+    t = replace(t, "LABEL_PLAINTEXT",     s.aes_encrypt_label_plaintext);
     t = replace(t, "PLACEHOLDER_PLAINTEXT",s.aes_encrypt_placeholder_plaintext);
-    t = replace(t, "BTN",                  s.aes_encrypt_btn);
-    t = replace(t, "RESULT",               result);
+    t = replace(t, "BTN",                 s.aes_encrypt_btn);
+    t = replace(t, "RESULT",              result);
     return t;
 }
 
@@ -135,15 +138,15 @@ std::string renderDecryptPage(Lang::Language lang, const std::string& output, co
         ? resultBlock(s.error_title, error, true)
         : resultBlock(s.aes_decrypted_title, output, false);
     std::string t = Templates::DECRYPT;
-    t = replace(t, "TITLE",                 s.aes_decrypt_title);
-    t = replace(t, "LABEL_PASSWORD",        s.aes_decrypt_label_password);
-    t = replace(t, "PLACEHOLDER_PASSWORD",  s.aes_decrypt_placeholder_password);
-    t = replace(t, "LABEL_CIPHERTEXT",      s.aes_decrypt_label_ciphertext);
+    t = replace(t, "TITLE",                s.aes_decrypt_title);
+    t = replace(t, "LABEL_PASSWORD",       s.aes_decrypt_label_password);
+    t = replace(t, "PLACEHOLDER_PASSWORD", s.aes_decrypt_placeholder_password);
+    t = replace(t, "LABEL_CIPHERTEXT",     s.aes_decrypt_label_ciphertext);
     t = replace(t, "PLACEHOLDER_CIPHERTEXT",s.aes_decrypt_placeholder_ciphertext);
-    t = replace(t, "LABEL_SALT",            s.aes_decrypt_label_salt);
-    t = replace(t, "PLACEHOLDER_SALT",      s.aes_decrypt_placeholder_salt);
-    t = replace(t, "BTN",                   s.aes_decrypt_btn);
-    t = replace(t, "RESULT",                result);
+    t = replace(t, "LABEL_SALT",           s.aes_decrypt_label_salt);
+    t = replace(t, "PLACEHOLDER_SALT",     s.aes_decrypt_placeholder_salt);
+    t = replace(t, "BTN",                  s.aes_decrypt_btn);
+    t = replace(t, "RESULT",               result);
     return t;
 }
 
@@ -186,15 +189,15 @@ std::string renderRSAEncryptPage(Lang::Language lang, const std::string& output,
         ? (output.empty() ? "" : "<div class=\"card result\">\n<h3 style=\"color:#0f0;\">" + s.rsa_enc_success + "</h3>\n" + output + "</div>\n")
         : resultBlock(s.error_title, error, true);
     std::string t = Templates::RSA_ENCRYPT;
-    t = replace(t, "TITLE",                s.rsa_enc_title);
-    t = replace(t, "LABEL_N",              s.rsa_enc_label_n);
-    t = replace(t, "PLACEHOLDER_N",        s.rsa_enc_placeholder_n);
-    t = replace(t, "LABEL_E",              s.rsa_enc_label_e);
-    t = replace(t, "PLACEHOLDER_E",        s.rsa_enc_placeholder_e);
-    t = replace(t, "LABEL_PLAINTEXT",      s.rsa_enc_label_plaintext);
+    t = replace(t, "TITLE",               s.rsa_enc_title);
+    t = replace(t, "LABEL_N",             s.rsa_enc_label_n);
+    t = replace(t, "PLACEHOLDER_N",       s.rsa_enc_placeholder_n);
+    t = replace(t, "LABEL_E",             s.rsa_enc_label_e);
+    t = replace(t, "PLACEHOLDER_E",       s.rsa_enc_placeholder_e);
+    t = replace(t, "LABEL_PLAINTEXT",     s.rsa_enc_label_plaintext);
     t = replace(t, "PLACEHOLDER_PLAINTEXT",s.rsa_enc_placeholder_plaintext);
-    t = replace(t, "BTN",                  s.rsa_enc_btn);
-    t = replace(t, "RESULT",               result);
+    t = replace(t, "BTN",                 s.rsa_enc_btn);
+    t = replace(t, "RESULT",              result);
     return t;
 }
 
@@ -204,23 +207,24 @@ std::string renderRSADecryptPage(Lang::Language lang, const std::string& output,
         ? (output.empty() ? "" : "<div class=\"card result\">\n<h3 style=\"color:#0f0;\">" + s.rsa_dec_success + "</h3>\n" + output + "</div>\n")
         : resultBlock(s.error_title, error, true);
     std::string t = Templates::RSA_DECRYPT;
-    t = replace(t, "TITLE",             s.rsa_dec_title);
-    t = replace(t, "LABEL_N",           s.rsa_dec_label_n);
-    t = replace(t, "PLACEHOLDER_N",     s.rsa_dec_placeholder_n);
-    t = replace(t, "LABEL_D",           s.rsa_dec_label_d);
-    t = replace(t, "PLACEHOLDER_D",     s.rsa_dec_placeholder_d);
-    t = replace(t, "LABEL_CIPHER",      s.rsa_dec_label_cipher);
+    t = replace(t, "TITLE",            s.rsa_dec_title);
+    t = replace(t, "LABEL_N",          s.rsa_dec_label_n);
+    t = replace(t, "PLACEHOLDER_N",    s.rsa_dec_placeholder_n);
+    t = replace(t, "LABEL_D",          s.rsa_dec_label_d);
+    t = replace(t, "PLACEHOLDER_D",    s.rsa_dec_placeholder_d);
+    t = replace(t, "LABEL_CIPHER",     s.rsa_dec_label_cipher);
     t = replace(t, "PLACEHOLDER_CIPHER",s.rsa_dec_placeholder_cipher);
-    t = replace(t, "BTN",               s.rsa_dec_btn);
-    t = replace(t, "RESULT",            result);
+    t = replace(t, "BTN",              s.rsa_dec_btn);
+    t = replace(t, "RESULT",           result);
     return t;
 }
 
 std::string renderDocsPage(Lang::Language lang) {
+    // Docs страница без плейсхолдеров — разные версии для RU/EN
     if (lang == Lang::Language::RU) {
         return Templates::DOCS_RU;
     }
     return Templates::DOCS_EN;
 }
 
-}
+} // namespace WebTemplates
