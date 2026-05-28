@@ -1,0 +1,11 @@
+<div class="card">
+    <h2>{{TITLE}}</h2>
+    <form method="POST" action="/encrypt">
+        <label>{{LABEL_PASSWORD}}</label>
+        <input type="password" name="password" required placeholder="{{PLACEHOLDER_PASSWORD}}">
+        <label>{{LABEL_PLAINTEXT}}</label>
+        <textarea name="plaintext" rows="6" required placeholder="{{PLACEHOLDER_PLAINTEXT}}"></textarea>
+        <button type="submit">{{BTN}}</button>
+    </form>
+</div>
+{{RESULT}}

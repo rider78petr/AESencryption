@@ -1,0 +1,13 @@
+<div class="card">
+    <h2>{{TITLE}}</h2>
+    <form method="POST" action="/decrypt">
+        <label>{{LABEL_PASSWORD}}</label>
+        <input type="password" name="password" required placeholder="{{PLACEHOLDER_PASSWORD}}">
+        <label>{{LABEL_CIPHERTEXT}}</label>
+        <textarea name="ciphertext" rows="3" required placeholder="{{PLACEHOLDER_CIPHERTEXT}}"></textarea>
+        <label>{{LABEL_SALT}}</label>
+        <textarea name="salt" rows="2" required placeholder="{{PLACEHOLDER_SALT}}"></textarea>
+        <button type="submit">{{BTN}}</button>
+    </form>
+</div>
+{{RESULT}}

@@ -1,0 +1,72 @@
+<div class="card">
+    <h2>Исходный код</h2>
+    <p style="color:#aaa; line-height:1.7;">Исходный код проекта доступен на GitHub:</p>
+    <a href="https://github.com/" class="button" style="background:#333; color:#0f0; margin-top:10px;" target="_blank">GitHub &rarr;</a>
+</div>
+<div class="card">
+    <h2>Общие сведения о шифровании</h2>
+    <p style="color:#aaa; line-height:1.8;">Шифрование — процесс преобразования данных в нечитаемый вид. Существует два основных вида:</p>
+    <ul style="margin-top:10px;">
+        <li><strong style="color:#eee;">Симметричное</strong> — один ключ для шифрования и расшифрования. Быстрое. Пример: AES.</li>
+        <li><strong style="color:#eee;">Асимметричное</strong> — публичный ключ шифрует, приватный расшифровывает. Пример: RSA.</li>
+    </ul>
+</div>
+<div class="card">
+    <h2>AES-128</h2>
+    <p style="color:#aaa; line-height:1.8; margin-bottom:12px;">AES (Advanced Encryption Standard) — симметричный блочный шифр, стандарт NIST с 2001 года. Шифрует блоками 128 бит с ключом 128 бит.</p>
+    <h3>Как работает</h3>
+    <ul>
+        <li>Данные разбиваются на блоки 4x4 байта (128 бит)</li>
+        <li>Каждый блок проходит 10 раундов преобразований</li>
+        <li><strong style="color:#eee;">SubBytes</strong> — замена байт по таблице S-Box</li>
+        <li><strong style="color:#eee;">ShiftRows</strong> — циклический сдвиг строк матрицы</li>
+        <li><strong style="color:#eee;">MixColumns</strong> — перемешивание столбцов в GF(2^8)</li>
+        <li><strong style="color:#eee;">AddRoundKey</strong> — XOR с раундовым ключом</li>
+    </ul>
+    <h3 style="margin-top:15px;">Особенности реализации</h3>
+    <ul>
+        <li>Пароль -> ключ через PBKDF2-HMAC-SHA256 (10000 итераций)</li>
+        <li>Случайная соль (16 байт) для каждого шифрования</li>
+        <li>Режим ECB с PKCS#7 padding</li>
+    </ul>
+    <p style="color:#777; font-size:12px; margin-top:10px;">Спецификация: FIPS 197 — <a href="https://csrc.nist.gov/pubs/fips/197/final" target="_blank">csrc.nist.gov/pubs/fips/197/final</a></p>
+</div>
+<div class="card">
+    <h2>RSA-2048</h2>
+    <p style="color:#aaa; line-height:1.8; margin-bottom:12px;">RSA — асимметричный алгоритм (Rivest, Shamir, Adleman, 1977). Безопасность основана на сложности факторизации больших чисел.</p>
+    <h3>Генерация ключей</h3>
+    <ul>
+        <li>Два больших простых числа <strong style="color:#eee;">p</strong> и <strong style="color:#eee;">q</strong> (по 1024 бита)</li>
+        <li>Модуль <strong style="color:#eee;">n = p x q</strong> (2048 бит)</li>
+        <li>Функция Эйлера <strong style="color:#eee;">phi(n) = (p-1)(q-1)</strong></li>
+        <li>Публичная экспонента <strong style="color:#eee;">e = 65537</strong></li>
+        <li>Приватная экспонента <strong style="color:#eee;">d = e^(-1) mod phi(n)</strong></li>
+    </ul>
+    <h3 style="margin-top:15px;">Шифрование / расшифрование</h3>
+    <ul>
+        <li>Шифрование: <strong style="color:#eee;">c = m^e mod n</strong></li>
+        <li>Расшифрование: <strong style="color:#eee;">m = c^d mod n</strong></li>
+        <li>Длинные сообщения разбиваются на блоки по 223 байта</li>
+    </ul>
+    <h3 style="margin-top:15px;">Проверка простоты</h3>
+    <p style="color:#aaa; line-height:1.8;">Тест Миллера-Рабина (20 раундов). Вероятность ошибки менее 2^(-40). Предварительная фильтрация первыми 170 малыми простыми.</p>
+    <p style="color:#777; font-size:12px; margin-top:10px;">Спецификация: RFC 8017 — <a href="https://www.rfc-editor.org/rfc/rfc8017" target="_blank">rfc-editor.org/rfc/rfc8017</a></p>
+</div>
+<div class="card">
+    <h2>SHA-256</h2>
+    <p style="color:#aaa; line-height:1.8;">Криптографическая хеш-функция SHA-2. Преобразует данные любой длины в 256-битный хеш. Используется в HMAC и PBKDF2.</p>
+    <ul style="margin-top:10px;">
+        <li>Блоки по 512 бит, 64 раунда сжатия</li>
+        <li>Операции AND, OR, XOR, NOT и битовые сдвиги</li>
+        <li>Необратима: нельзя восстановить исходные данные из хеша</li>
+    </ul>
+    <p style="color:#777; font-size:12px; margin-top:10px;">Спецификация: FIPS 180-4 — <a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final" target="_blank">csrc.nist.gov/pubs/fips/180-4</a></p>
+</div>
+<div class="card">
+    <h2>Используемые библиотеки</h2>
+    <ul>
+        <li><strong style="color:#eee;">GMP</strong> — арифметика больших чисел для RSA (только +, -, x, /, mod).<br><a href="https://gmplib.org/" target="_blank" style="font-size:12px;">gmplib.org</a></li>
+        <li style="margin-top:10px;"><strong style="color:#eee;">cpp-httplib</strong> — однофайловая C++ HTTP библиотека.<br><a href="https://github.com/yhirose/cpp-httplib" target="_blank" style="font-size:12px;">github.com/yhirose/cpp-httplib</a></li>
+    </ul>
+    <p style="color:#aaa; line-height:1.8; margin-top:15px;">Все криптографические алгоритмы реализованы самостоятельно без сторонних криптобиблиотек.</p>
+</div>

@@ -1,0 +1,13 @@
+<div class="card">
+    <h2>{{TITLE}}</h2>
+    <form method="POST" action="/rsa/decrypt">
+        <label>{{LABEL_N}}</label>
+        <textarea name="privkey_n" rows="6" required placeholder="{{PLACEHOLDER_N}}"></textarea>
+        <label>{{LABEL_D}}</label>
+        <textarea name="privkey_d" rows="6" required placeholder="{{PLACEHOLDER_D}}"></textarea>
+        <label>{{LABEL_CIPHER}}</label>
+        <textarea name="ciphertext" rows="4" required placeholder="{{PLACEHOLDER_CIPHER}}"></textarea>
+        <button type="submit">{{BTN}}</button>
+    </form>
+</div>
+{{RESULT}}

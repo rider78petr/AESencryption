@@ -1,0 +1,70 @@
+<div class="card">
+    <h2>Source Code</h2>
+    <p style="color:#aaa; line-height:1.7;">Project source code is available on GitHub:</p>
+    <a href="https://github.com/" class="button" style="background:#333; color:#0f0; margin-top:10px;" target="_blank">GitHub &rarr;</a>
+</div>
+<div class="card">
+    <h2>Introduction to Encryption</h2>
+    <p style="color:#aaa; line-height:1.8;">Encryption converts data into unreadable form using math. Two main types:</p>
+    <ul style="margin-top:10px;">
+        <li><strong style="color:#eee;">Symmetric</strong> — one key for encrypt and decrypt. Fast. Example: AES.</li>
+        <li><strong style="color:#eee;">Asymmetric</strong> — public key encrypts, private key decrypts. Example: RSA.</li>
+    </ul>
+</div>
+<div class="card">
+    <h2>AES-128</h2>
+    <p style="color:#aaa; line-height:1.8; margin-bottom:12px;">AES (Advanced Encryption Standard) — symmetric block cipher, NIST standard since 2001. Encrypts 128-bit blocks with 128-bit key.</p>
+    <h3>How it works</h3>
+    <ul>
+        <li>Data split into 4x4 byte blocks (128 bits)</li>
+        <li>10 rounds of transformations per block</li>
+        <li><strong style="color:#eee;">SubBytes</strong> — byte substitution via S-Box</li>
+        <li><strong style="color:#eee;">ShiftRows</strong> — cyclic row shifts</li>
+        <li><strong style="color:#eee;">MixColumns</strong> — column mixing in GF(2^8)</li>
+        <li><strong style="color:#eee;">AddRoundKey</strong> — XOR with round key</li>
+    </ul>
+    <h3 style="margin-top:15px;">Implementation</h3>
+    <ul>
+        <li>Password to key via PBKDF2-HMAC-SHA256 (10000 iterations)</li>
+        <li>Random salt (16 bytes) per encryption</li>
+        <li>ECB mode with PKCS#7 padding</li>
+    </ul>
+    <p style="color:#777; font-size:12px; margin-top:10px;">Spec: FIPS 197 — <a href="https://csrc.nist.gov/pubs/fips/197/final" target="_blank">csrc.nist.gov/pubs/fips/197/final</a></p>
+</div>
+<div class="card">
+    <h2>RSA-2048</h2>
+    <p style="color:#aaa; line-height:1.8; margin-bottom:12px;">Asymmetric encryption by Rivest, Shamir, Adleman (1977). Security based on difficulty of factoring large numbers.</p>
+    <h3>Key Generation</h3>
+    <ul>
+        <li>Two primes <strong style="color:#eee;">p</strong> and <strong style="color:#eee;">q</strong> (1024 bits each)</li>
+        <li>Modulus <strong style="color:#eee;">n = p x q</strong> (2048 bits)</li>
+        <li>Euler totient <strong style="color:#eee;">phi(n) = (p-1)(q-1)</strong></li>
+        <li>Public exponent <strong style="color:#eee;">e = 65537</strong></li>
+        <li>Private exponent <strong style="color:#eee;">d = e^(-1) mod phi(n)</strong></li>
+    </ul>
+    <h3 style="margin-top:15px;">Encrypt / Decrypt</h3>
+    <ul>
+        <li>Encrypt: <strong style="color:#eee;">c = m^e mod n</strong></li>
+        <li>Decrypt: <strong style="color:#eee;">m = c^d mod n</strong></li>
+        <li>Messages split into 223-byte blocks</li>
+    </ul>
+    <p style="color:#777; font-size:12px; margin-top:10px;">Spec: RFC 8017 — <a href="https://www.rfc-editor.org/rfc/rfc8017" target="_blank">rfc-editor.org/rfc/rfc8017</a></p>
+</div>
+<div class="card">
+    <h2>SHA-256</h2>
+    <p style="color:#aaa; line-height:1.8;">Cryptographic hash from SHA-2 family. Converts any data to 256-bit hash. Used in HMAC and PBKDF2.</p>
+    <ul style="margin-top:10px;">
+        <li>512-bit blocks, 64 compression rounds</li>
+        <li>AND, OR, XOR, NOT and bit shifts</li>
+        <li>One-way: cannot recover original data from hash</li>
+    </ul>
+    <p style="color:#777; font-size:12px; margin-top:10px;">Spec: FIPS 180-4 — <a href="https://csrc.nist.gov/pubs/fips/180-4/upd1/final" target="_blank">csrc.nist.gov/pubs/fips/180-4</a></p>
+</div>
+<div class="card">
+    <h2>Libraries Used</h2>
+    <ul>
+        <li><strong style="color:#eee;">GMP</strong> — big number arithmetic for RSA (+, -, x, /, mod only).<br><a href="https://gmplib.org/" target="_blank" style="font-size:12px;">gmplib.org</a></li>
+        <li style="margin-top:10px;"><strong style="color:#eee;">cpp-httplib</strong> — single-file C++ HTTP library.<br><a href="https://github.com/yhirose/cpp-httplib" target="_blank" style="font-size:12px;">github.com/yhirose/cpp-httplib</a></li>
+    </ul>
+    <p style="color:#aaa; line-height:1.8; margin-top:15px;">All crypto algorithms implemented from scratch without third-party crypto libraries.</p>
+</div>

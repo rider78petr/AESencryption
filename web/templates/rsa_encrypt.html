@@ -1,0 +1,13 @@
+<div class="card">
+    <h2>{{TITLE}}</h2>
+    <form method="POST" action="/rsa/encrypt">
+        <label>{{LABEL_N}}</label>
+        <textarea name="pubkey_n" rows="6" required placeholder="{{PLACEHOLDER_N}}"></textarea>
+        <label>{{LABEL_E}}</label>
+        <input type="text" name="pubkey_e" required placeholder="{{PLACEHOLDER_E}}">
+        <label>{{LABEL_PLAINTEXT}}</label>
+        <textarea name="plaintext" rows="4" required placeholder="{{PLACEHOLDER_PLAINTEXT}}"></textarea>
+        <button type="submit">{{BTN}}</button>
+    </form>
+</div>
+{{RESULT}}

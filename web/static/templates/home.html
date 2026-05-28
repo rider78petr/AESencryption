@@ -1,0 +1,41 @@
+<div class="card">
+    <h2>Welcome</h2>
+    <p style="color:#aaa; line-height:1.7;">
+        AES-128 encryption implemented from scratch in C++. No external crypto libraries used.
+    </p>
+
+    <div class="button-group">
+        <a href="/encrypt" class="button">encrypt text</a>
+        <a href="/test" class="button" style="background:#333; color:#0f0;">run fips test</a>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Implementation</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">128</div>
+            <div class="stat-label">block size (bit)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">128</div>
+            <div class="stat-label">key size (bit)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">10</div>
+            <div class="stat-label">rounds</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">SHA-256</div>
+            <div class="stat-label">hash function</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">10000</div>
+            <div class="stat-label">pbkdf2 iterations</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">PKCS#7</div>
+            <div class="stat-label">padding</div>
+        </div>
+    </div>
+</div>
